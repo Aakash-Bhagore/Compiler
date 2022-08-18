@@ -38,18 +38,17 @@ public class PythonController {
 	public ResponseEntity<Response> getCompiler(@RequestBody Map<String, Object> data, Model model)
 			throws IOException {
 		Response response = new Response();
-		String input = "";
-		String languageExtension = "py";
-		String programOuput = "";
+		String input = "", languageExtension = "py", programOuput = "";
 		String code = (String) data.get("code");
 		System.out.println(code);
 //		int questionId = (int)data.get("questionId");
+	
 		//generate code file
 		commonService.getCodeFile(code,languageExtension);
 		try
 		  {
 			programOuput = commonService.compile("py Practise.py");
-			if(!programOuput.isEmpty()) {	
+			if(programOuput !=null && !programOuput.isEmpty()) {	
 				response.setStatusMessage("Error: " + programOuput);
 				response.setOutput(programOuput);
 				return ResponseEntity.ok(response);
@@ -79,7 +78,6 @@ public class PythonController {
 				Future<String> result = futureList.get(i);
 				programOuput += (String)result.get();
 			}
-		   System.out.println(programOuput);
 		} catch (IOException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -92,8 +90,7 @@ public class PythonController {
 	public ResponseEntity<Response> javaCompilerWithdb(@RequestBody Map<String, Object> data){
 		Response response = new Response();
 
-		String languageExtension = "py";
-		String programOuput = "";
+		String languageExtension = "py", programOuput = "";
 		String submit = (String) data.get("submit");
 		String code = (String) data.get("code");
 		int questionId = (int)data.get("questionId");
@@ -103,7 +100,7 @@ public class PythonController {
 		try
 		  {
 			programOuput = commonService.compile("py Practise.py");
-			if(!programOuput.isEmpty()) {	
+			if(programOuput !=null &&  !programOuput.isEmpty()) {	
 				response.setStatusMessage("Error: " + programOuput);
 				response.setOutput(programOuput);
 				return ResponseEntity.ok(response);
@@ -134,7 +131,6 @@ public class PythonController {
 				Future<String> result = futureList.get(i);
 				programOuput += (String)result.get();
 			}
-		   System.out.println(programOuput);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
