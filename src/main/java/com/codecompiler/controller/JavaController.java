@@ -57,23 +57,18 @@ public class JavaController {
 	private String addContest(@RequestParam("contestName") String contestName,
 			                  @RequestParam("startTime")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
 			                  @RequestParam("endTime")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime endTime,Model model) {
-		System.out.println(contestName);
-		System.out.println(startTime);
-		System.out.println(endTime);
 		Contest contest = new Contest();
 		contest.setContestName(contestName);
 		contest.setStartTime(startTime);
 		contest.setEndTime(endTime);
 		
 		Contest con = commonService.saveContest(contest);
-		System.out.println("ContestId:- "+contest.getContestId());
 		model.addAttribute("contestId", con.getContestId());
 		return "question";
 	}
 
 	@GetMapping("/questions") 
 	public ResponseEntity<Question> getQuestion(@RequestBody Question question){
-		System.out.println(question.getQuestionId());
 		int qId = question.getQuestionId();
 		Question q = commonService.getQuestion(qId);
 		return ResponseEntity.ok(q);
@@ -84,17 +79,15 @@ public class JavaController {
 			                  @RequestParam("constraints")  String constraints,
 			                  @RequestParam("output")       String output,
 			                  @RequestParam("input")        String input,
-			                  @RequestParam("contestId")    String contestId,Model model) {
-		System.out.println("Question:- "+question + "\n" + "Constraints:- "+constraints+ "\n" + "Output:- "+output+ "\n" + "ContestId "+contestId + "\n" + "Input:- "+input ) ;
-		
+			                  @RequestParam("contestId")    String contestId,Model model) {	
 		Contest contest = commonService.getContest(contestId);
-		Question q = new Question();
-		q.setConstraints(constraints);
-		q.setInput(input);
-		q.setOutput(output);
-		q.setQuestion(question);
-		q.setContest(contest);
-		Question questionRessult = commonService.addQuestion(q);
+		Question questions = new Question();
+		questions.setConstraints(constraints);
+		questions.setInput(input);
+		questions.setOutput(output);
+		questions.setQuestion(question);
+		questions.setContest(contest);
+		Question questionRessult = commonService.addQuestion(questions);
 		model.addAttribute("question", questionRessult);
 		return "questions";
 	}
@@ -105,7 +98,7 @@ public class JavaController {
 		int questionId = (int)testCases.get("questionId");
 		String input = (String)testCases.get("input");
 		String output = (String)testCases.get("output");
-		System.out.println("questionId:- "+questionId+"\n"+"input:- "+input+"\n"+"output:- "+output);
+		
 		Question question = commonService.getQuestion(questionId); 
 		test.setInput(input);
 		test.setOutput(output);
@@ -116,7 +109,6 @@ public class JavaController {
 	
 	@PostMapping("/solve-challenge")
 	public String solveEditor(@RequestParam("questionId") String questionId,Model model) {
-		System.out.println("questionId: " + questionId);
 		int id = Integer.parseInt(questionId);
 		Question question = commonService.getQuestion(id);
 		List<TestCases> test = commonService.getTestCase(question.getQuestionId());
@@ -124,16 +116,12 @@ public class JavaController {
 		model.addAttribute("test", test);
 		return "challenge";
 	}
-	@SuppressWarnings({ "resource", "unused" })
+	
+	
 	@PostMapping("/java-compiler-api") 
 	public ResponseEntity<Response> javaCompiler(@RequestBody Map<String, Object> data){
 		Response response = new Response();
-		String output = "";
-		String line = "";
-		String input;
-		String testCase;
-		String languageExtension = "java";
-		String programOuput = "";
+		String output = "", line = "", input="", testCase = "", languageExtension = "java", programOuput = "";
 		String code = (String) data.get("code");
 		int questionId = (int)data.get("questionId");
 		Process pro = null;
@@ -144,7 +132,7 @@ public class JavaController {
 		try
 		  {
 			programOuput = commonService.compile("javac.exe Practise.java");
-			if(!programOuput.isEmpty()) {	
+			if(programOuput !=null && !programOuput.isEmpty()) {	
 				response.setStatusMessage("Error: " + programOuput);
 				response.setOutput(programOuput);
 				return ResponseEntity.ok(response);
@@ -175,7 +163,6 @@ public class JavaController {
 				Future<String> result = futureList.get(i);
 				programOuput += (String)result.get();
 			}
-		   System.out.println(programOuput);
 		} catch (IOException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -187,10 +174,9 @@ public class JavaController {
 	public ResponseEntity<Response> javaCompilerWithdb(@RequestBody Map<String, Object> data){
 		Response response = new Response();
 
-		String languageExtension = "java";
-		String programOuput = "";
-		String code = (String) data.get("code");
-		String submit = (String) data.get("submit");
+		String languageExtension = "java", programOuput = "";
+		String code    = (String) data.get("code");
+		String submit  = (String) data.get("submit");
 		int questionId = (int)data.get("questionId");
 		
 		//generate code file
@@ -198,7 +184,7 @@ public class JavaController {
 		try
 		  {
 			programOuput = commonService.compile("javac.exe Practise.java");
-			if(!programOuput.isEmpty()) {	
+			if(programOuput !=null && !programOuput.isEmpty()) {	
 				response.setStatusMessage("Error: " + programOuput);
 				response.setOutput(programOuput);
 				return ResponseEntity.ok(response);
